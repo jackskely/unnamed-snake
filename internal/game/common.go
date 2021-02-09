@@ -8,3 +8,10 @@ const (
 	right
 	up
 )
+
+type event string
+
+const (
+	lost event = "You've lost"
+	won        = "You've won"
+)

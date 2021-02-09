@@ -14,13 +14,17 @@ func newSnake(axisCellNumber int32) snake {
 			make([]segment, 0, axisCellNumber*axisCellNumber),
 			segment{
 				pos: coord{
-					x: 4 + rand.Int31n(axisCellNumber-8),
-					y: 4 + rand.Int31n(axisCellNumber-8),
+					x: rand.Int31n(axisCellNumber),
+					y: rand.Int31n(axisCellNumber),
 				},
 				dir: direction(rand.Intn(4)),
 			},
 		),
 	}
+}
+
+func (s *snake) head() *segment {
+	return &s.body[0]
 }
 
 func (s *snake) move() {
