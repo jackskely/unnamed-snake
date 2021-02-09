@@ -132,7 +132,7 @@ func (g game) drawSnake() {
 		rl.DrawRectangleGradientH(g.snake.body[0].pos.x*(width), g.snake.body[0].pos.y*(height), width, height, rl.Green, rl.DarkGreen)
 	}
 
-	for _, s := range g.snake.body {
+	for _, s := range g.snake.body[1:] {
 		rl.DrawRectangle(s.pos.x*(width), s.pos.y*(height), width, height, rl.Green)
 	}
 }
