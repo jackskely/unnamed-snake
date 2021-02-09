@@ -8,14 +8,14 @@ type snake struct {
 	body []segment
 }
 
-func newSnake(cellAxisNumber int32) snake {
+func newSnake(axisCellNumber int32) snake {
 	return snake{
 		body: append(
-			make([]segment, 0, cellAxisNumber*cellAxisNumber),
+			make([]segment, 0, axisCellNumber*axisCellNumber),
 			segment{
 				pos: coord{
-					x: 4 + rand.Int31n(cellAxisNumber-8),
-					y: 4 + rand.Int31n(cellAxisNumber-8),
+					x: 4 + rand.Int31n(axisCellNumber-8),
+					y: 4 + rand.Int31n(axisCellNumber-8),
 				},
 				dir: direction(rand.Intn(4)),
 			},

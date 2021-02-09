@@ -15,20 +15,20 @@ func init() {
 }
 
 type game struct {
-	width, height, cellAxisNumber int32
+	width, height, axisCellNumber int32
 	input                         chan direction
 	food                          coord
 	snake                         snake
 }
 
 // NewGame returns a new game instance
-func NewGame(width, height, cellAxisNumber int32) game {
-	snk := newSnake(cellAxisNumber)
+func NewGame(width, height, axisCellNumber int32) game {
+	snk := newSnake(axisCellNumber)
 	return game{
 		width:          width,
 		height:         height,
-		cellAxisNumber: cellAxisNumber,
-		food:           newFood(cellAxisNumber, snk),
+		axisCellNumber: axisCellNumber,
+		food:           newFood(axisCellNumber, snk),
 		input:          make(chan direction),
 		snake:          snk,
 	}
@@ -36,7 +36,6 @@ func NewGame(width, height, cellAxisNumber int32) game {
 
 // Start starts the game instance
 func (g *game) Start() {
-	// go g.log()
 	go g.gameLoop()
 	g.drawLoop()
 }
@@ -51,10 +50,10 @@ func (g *game) gameLoop() {
 		}
 		if g.snake.body[0].pos.x == g.food.x && g.snake.body[0].pos.y == g.food.y {
 			g.snake.eat()
-			g.food = newFood(g.cellAxisNumber, g.snake)
+			g.food = newFood(g.axisCellNumber, g.snake)
 		}
 		g.snake.move()
-		if g.snake.body[0].pos.x >= g.cellAxisNumber || g.snake.body[0].pos.y >= g.cellAxisNumber || g.snake.body[0].pos.x < 0 || g.snake.body[0].pos.y < 0 {
+		if g.snake.body[0].pos.x >= g.axisCellNumber || g.snake.body[0].pos.y >= g.axisCellNumber || g.snake.body[0].pos.x < 0 || g.snake.body[0].pos.y < 0 {
 			log.Fatalf("MUR: %+v", g)
 		}
 		for i := 1; i < len(g.snake.body); i++ {
@@ -106,20 +105,20 @@ func (g *game) listenInput() {
 	}
 }
 
-func newFood(cellAxisNumber int32, s snake) coord {
-	rnx := rand.Int31n(cellAxisNumber)
-	rny := rand.Int31n(cellAxisNumber)
+func newFood(axisCellNumber int32, s snake) coord {
+	rnx := rand.Int31n(axisCellNumber)
+	rny := rand.Int31n(axisCellNumber)
 	for _, cell := range s.body {
 		if cell.pos.y == rnx && cell.pos.y == rny {
-			return newFood(cellAxisNumber, s)
+			return newFood(axisCellNumber, s)
 		}
 	}
 	return coord{x: rnx, y: rny}
 }
 
 func (g game) drawSnake() {
-	width := g.width / g.cellAxisNumber
-	height := g.height / g.cellAxisNumber
+	width := g.width / g.axisCellNumber
+	height := g.height / g.axisCellNumber
 
 	switch g.snake.body[0].dir {
 	case left:
@@ -138,13 +137,13 @@ func (g game) drawSnake() {
 }
 
 func (g game) drawFood() {
-	rl.DrawRectangle(g.food.x*(g.width/g.cellAxisNumber), g.food.y*(g.height/g.cellAxisNumber), g.width/g.cellAxisNumber, g.height/g.cellAxisNumber, rl.Red)
+	rl.DrawRectangle(g.food.x*(g.width/g.axisCellNumber), g.food.y*(g.height/g.axisCellNumber), g.width/g.axisCellNumber, g.height/g.axisCellNumber, rl.Red)
 }
 
 func (g *game) log() {
 	for range time.Tick(time.Second) {
 		log.Printf("%+v", g.snake.body)
 		log.Printf("%+v,%+v,%+v,%+v",
-			g.snake.body[0].pos.x >= g.cellAxisNumber, g.snake.body[0].pos.y >= g.cellAxisNumber, g.snake.body[0].pos.x < 0, g.snake.body[0].pos.y < 0)
+			g.snake.body[0].pos.x >= g.axisCellNumber, g.snake.body[0].pos.y >= g.axisCellNumber, g.snake.body[0].pos.x < 0, g.snake.body[0].pos.y < 0)
 	}
 }
