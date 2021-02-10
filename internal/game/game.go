@@ -64,21 +64,21 @@ func (g *game) gameLoop() {
 			return
 		}
 
-		if g.snake.head().pos.x == g.food.x && g.snake.head().pos.y == g.food.y {
+		if g.snake.head().x == g.food.x && g.snake.head().y == g.food.y {
 			g.snake.eat()
 			g.food = newFood(g.axisCellNumber, &g.snake)
 		}
 
 		g.snake.move()
 
-		if g.snake.head().pos.x >= g.axisCellNumber || g.snake.head().pos.y >= g.axisCellNumber || g.snake.head().pos.x < 0 || g.snake.head().pos.y < 0 {
+		if g.snake.head().x >= g.axisCellNumber || g.snake.head().y >= g.axisCellNumber || g.snake.head().x < 0 || g.snake.head().y < 0 {
 			log.Print("Death: wonderwall")
 			g.draw <- lost
 			return
 		}
 
 		for i := 1; i < len(g.snake.body); i++ {
-			if g.snake.head().pos.x == g.snake.body[i].pos.x && g.snake.head().pos.y == g.snake.body[i].pos.y {
+			if g.snake.head().x == g.snake.body[i].x && g.snake.head().y == g.snake.body[i].y {
 				log.Print("Death: ouroboros")
 				g.draw <- lost
 				return
@@ -130,7 +130,7 @@ func (g *game) listenInput() {
 	for {
 		select {
 		case d := <-g.input:
-			g.snake.head().dir = d
+			g.snake.dir = d
 		}
 	}
 }
@@ -138,8 +138,8 @@ func (g *game) listenInput() {
 func newFood(axisCellNumber int32, s *snake) coord {
 	rnx := rand.Int31n(axisCellNumber)
 	rny := rand.Int31n(axisCellNumber)
-	for _, cell := range s.body {
-		if cell.pos.y == rnx && cell.pos.y == rny {
+	for _, seg := range s.body {
+		if seg.y == rnx && seg.y == rny {
 			return newFood(axisCellNumber, s)
 		}
 	}
@@ -148,18 +148,18 @@ func newFood(axisCellNumber int32, s *snake) coord {
 
 func (g game) drawSnake() {
 	head := g.snake.head()
-	switch head.dir {
+	switch g.snake.dir {
 	case left:
-		rl.DrawRectangleGradientH(head.pos.x*g.cellWidth, head.pos.y*g.cellHeight, g.cellWidth, g.cellHeight, rl.DarkGreen, rl.Green)
+		rl.DrawRectangleGradientH(head.x*g.cellWidth, head.y*g.cellHeight, g.cellWidth, g.cellHeight, rl.DarkGreen, rl.Green)
 	case down:
-		rl.DrawRectangleGradientV(head.pos.x*g.cellWidth, head.pos.y*g.cellHeight, g.cellWidth, g.cellHeight, rl.Green, rl.DarkGreen)
+		rl.DrawRectangleGradientV(head.x*g.cellWidth, head.y*g.cellHeight, g.cellWidth, g.cellHeight, rl.Green, rl.DarkGreen)
 	case up:
-		rl.DrawRectangleGradientV(head.pos.x*g.cellWidth, head.pos.y*g.cellHeight, g.cellWidth, g.cellHeight, rl.DarkGreen, rl.Green)
+		rl.DrawRectangleGradientV(head.x*g.cellWidth, head.y*g.cellHeight, g.cellWidth, g.cellHeight, rl.DarkGreen, rl.Green)
 	case right:
-		rl.DrawRectangleGradientH(head.pos.x*g.cellWidth, head.pos.y*g.cellHeight, g.cellWidth, g.cellHeight, rl.Green, rl.DarkGreen)
+		rl.DrawRectangleGradientH(head.x*g.cellWidth, head.y*g.cellHeight, g.cellWidth, g.cellHeight, rl.Green, rl.DarkGreen)
 	}
-	for _, s := range g.snake.body[1:] {
-		rl.DrawRectangle(s.pos.x*g.cellWidth, s.pos.y*g.cellHeight, g.cellWidth, g.cellHeight, rl.Green)
+	for _, seg := range g.snake.body[1:] {
+		rl.DrawRectangle(seg.x*g.cellWidth, seg.y*g.cellHeight, g.cellWidth, g.cellHeight, rl.Green)
 	}
 }
 
