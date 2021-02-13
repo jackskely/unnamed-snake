@@ -5,8 +5,8 @@ import (
 )
 
 type snake struct {
-	body []coord
 	dir  direction
+	body []coord
 }
 
 func newSnake(axisCellNumber int32) snake {

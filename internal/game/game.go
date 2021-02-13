@@ -56,8 +56,8 @@ func (g *game) gameLoop() {
 	<-g.input
 
 	max := int(g.width) * int(g.height)
-
-	for range time.Tick(time.Second / 8) {
+	tick := time.NewTicker(time.Second / 8)
+	for range tick.C {
 		if len(g.snake.body) == max {
 			log.Print("Evolution: dragon")
 			g.draw <- won
@@ -127,11 +127,8 @@ func captureInput(input chan<- direction) {
 
 func (g *game) listenInput() {
 	go captureInput(g.input)
-	for {
-		select {
-		case d := <-g.input:
-			g.snake.dir = d
-		}
+	for d := range g.input {
+		g.snake.dir = d
 	}
 }
 
