@@ -1,42 +1,42 @@
 package game
 
-import (
-	"math/rand"
-)
+import "math/rand"
 
 type snake struct {
-	dir  direction
+	dir  control
 	body []coord
 }
 
-func newSnake(axisCellNumber int32) snake {
+func newSnake(x, y int32, dir control, totalCell int) snake {
 	return snake{
+		dir: dir,
 		body: append(
-			make([]coord, 0, axisCellNumber*axisCellNumber),
-			coord{
-				x: rand.Int31n(axisCellNumber),
-				y: rand.Int31n(axisCellNumber),
-			},
+			make([]coord, 0, totalCell),
+			coord{x: x, y: y},
 		),
-		dir: direction(rand.Intn(4)),
 	}
 }
 
-func (s *snake) head() *coord {
-	return &s.body[0]
+func newRandomSnake(axisCellNumber int32) snake {
+	return newSnake(
+		rand.Int31n(axisCellNumber),
+		rand.Int31n(axisCellNumber),
+		randomDirection(),
+		int(axisCellNumber)*int(axisCellNumber),
+	)
 }
 
 func (s *snake) move() {
 	head := s.body[0]
 	switch s.dir {
+	case up:
+		head.y--
+		prependAndPop(s, head)
 	case left:
 		head.x--
 		prependAndPop(s, head)
 	case down:
 		head.y++
-		prependAndPop(s, head)
-	case up:
-		head.y--
 		prependAndPop(s, head)
 	case right:
 		head.x++

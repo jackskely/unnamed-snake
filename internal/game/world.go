@@ -1,0 +1,100 @@
+package game
+
+import (
+	"log"
+	"time"
+)
+
+type world struct {
+	width, height         int32
+	cellWidth, cellHeight int32
+	axisCellNumber        int32
+	food                  food
+	snake                 snake
+}
+
+func newWorld(width, height, axisCellNumber int32) world {
+	return world{
+		width:          width,
+		height:         height,
+		cellWidth:      width / axisCellNumber,
+		cellHeight:     height / axisCellNumber,
+		axisCellNumber: axisCellNumber,
+		food:           newRandomFood(axisCellNumber),
+		snake:          newRandomSnake(axisCellNumber),
+	}
+}
+
+func (w *world) starting(tps int32, c <-chan control) {
+	tick := time.NewTicker(time.Second / time.Duration(tps))
+	<-c
+	for range tick.C {
+		w.snake.move()
+
+		if failure(w) {
+			break
+		}
+
+		if growthRule(w) {
+			w.snake.eat()
+			w.food = foodSpawnMechanic(w)
+		}
+
+		if success(w) {
+			break
+		}
+	}
+
+	tick.Stop()
+}
+
+func success(w *world) bool {
+	return maxSizeRule(w)
+}
+
+func failure(w *world) bool {
+	return outOfBoundsRule(w) || ouroborosRule(w)
+}
+
+func maxSizeRule(w *world) bool {
+	if len(w.snake.body) == int(w.axisCellNumber)*int(w.axisCellNumber) {
+		log.Println("DRAGON", w.snake)
+		return true
+	}
+	return false
+}
+
+func outOfBoundsRule(w *world) bool {
+	head := w.snake.body[0]
+	if head.x < 0 || head.y < 0 || head.x >= w.axisCellNumber || head.y >= w.axisCellNumber {
+		log.Println("WONDERWALL", head)
+		return true
+	}
+	return false
+}
+
+func ouroborosRule(w *world) bool {
+	head := w.snake.body[0]
+	for _, s := range w.snake.body[1:] {
+		if head.x == s.x && head.y == s.y {
+			log.Println("OUROBOROS", w.snake)
+			return true
+		}
+	}
+	return false
+}
+
+func growthRule(w *world) bool {
+	head := w.snake.body[0]
+	return head.x == w.food.x && head.y == w.food.y
+}
+
+func foodSpawnMechanic(w *world) food {
+	f := newRandomFood(w.axisCellNumber)
+	for _, s := range w.snake.body {
+		if f.x == s.x && f.y == s.y {
+			return foodSpawnMechanic(w)
+		}
+	}
+	return f
+}
