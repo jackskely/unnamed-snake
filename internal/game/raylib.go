@@ -1,6 +1,7 @@
 package game
 
 import (
+	"fmt"
 	"time"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
@@ -23,6 +24,7 @@ func (raylib) drawing(w *world) {
 		rl.ClearBackground(rl.RayWhite)
 		drawFood(w.food, w.cellWidth, w.cellWidth, rl.Red)
 		drawSnake(w.snake, w.cellWidth, w.cellHeight, rl.DarkPurple, rl.Purple)
+		drawScore(w.score)
 		rl.EndDrawing()
 	}
 }
@@ -50,6 +52,11 @@ func drawSnake(s snake, width, height int32, c1, c2 rl.Color) {
 
 func drawFood(f food, width, height int32, c rl.Color) {
 	rl.DrawRectangle(f.x*width, f.y*height, width, height, c)
+}
+
+func drawScore(score int32) {
+	headerText := fmt.Sprintf("SCORE: %d", score)
+	rl.DrawText(headerText, 8, 8, rl.GetFontDefault().BaseSize, rl.Black)
 }
 
 func (r raylib) capturingInput(c chan<- control) {

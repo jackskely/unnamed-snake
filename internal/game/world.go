@@ -9,6 +9,7 @@ type world struct {
 	width, height         int32
 	cellWidth, cellHeight int32
 	axisCellNumber        int32
+	score                 int32
 	food                  food
 	snake                 snake
 }
@@ -37,11 +38,11 @@ func (w *world) starting(tps int32, c <-chan control) {
 
 		if growthRule(w) {
 			w.snake.eat()
+			w.score += 3 * int32(len(w.snake.body))
+			if success(w) {
+				break
+			}
 			w.food = foodSpawnMechanic(w)
-		}
-
-		if success(w) {
-			break
 		}
 	}
 
