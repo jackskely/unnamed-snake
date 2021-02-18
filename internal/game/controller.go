@@ -9,7 +9,7 @@ import (
 type controller struct {
 	view     view
 	input    inputHandler
-	controlC chan control
+	controlC chan direction
 }
 
 func NewController() controller {
@@ -17,7 +17,7 @@ func NewController() controller {
 	return controller{
 		view:     &r,
 		input:    &r,
-		controlC: make(chan control),
+		controlC: make(chan direction),
 	}
 }
 

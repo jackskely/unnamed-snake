@@ -26,7 +26,7 @@ func newWorld(width, height, axisCellNumber int32) world {
 	}
 }
 
-func (w *world) starting(tps int32, c <-chan control) {
+func (w *world) starting(tps int32, c <-chan direction) {
 	tick := time.NewTicker(time.Second / time.Duration(tps))
 	<-c
 	for range tick.C {

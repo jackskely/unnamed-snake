@@ -2,15 +2,15 @@ package game
 
 import "math/rand"
 
-type control int
+type direction int
 
 const (
-	up control = iota
+	up direction = iota
 	left
 	down
 	right
 )
 
-func randomDirection() control {
-	return control(rand.Int31n(4))
+func randomDirection() direction {
+	return direction(rand.Int31n(4))
 }

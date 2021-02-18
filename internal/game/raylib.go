@@ -59,7 +59,7 @@ func drawScore(score int32) {
 	rl.DrawText(headerText, 8, 8, rl.GetFontDefault().BaseSize, rl.Black)
 }
 
-func (r raylib) capturingInput(c chan<- control) {
+func (r raylib) capturingInput(c chan<- direction) {
 	tick := time.NewTicker(time.Second / time.Duration(r.targetFPS))
 	for range tick.C {
 		if rl.IsKeyDown(rl.KeyUp) {
@@ -75,7 +75,7 @@ func (r raylib) capturingInput(c chan<- control) {
 	tick.Stop()
 }
 
-func (r raylib) handlingInput(c <-chan control, w *world) {
+func (r raylib) handlingInput(c <-chan direction, w *world) {
 	for input := range c {
 		w.snake.dir = input
 	}

@@ -3,11 +3,11 @@ package game
 import "math/rand"
 
 type snake struct {
-	dir  control
+	dir  direction
 	body []coord
 }
 
-func newSnake(x, y int32, dir control, totalCell int) snake {
+func newSnake(x, y int32, dir direction, totalCell int) snake {
 	return snake{
 		dir: dir,
 		body: append(
