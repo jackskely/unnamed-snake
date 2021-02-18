@@ -67,7 +67,7 @@ func maxSizeRule(w *world) bool {
 
 func outOfBoundsRule(w *world) bool {
 	head := w.snake.body[0]
-	if head.x < 0 || head.y < 0 || head.x >= w.axisCellNumber || head.y >= w.axisCellNumber {
+	if !head.isWithinRect(0, 0, w.axisCellNumber, w.axisCellNumber) {
 		log.Println("WONDERWALL", head)
 		return true
 	}
@@ -77,7 +77,7 @@ func outOfBoundsRule(w *world) bool {
 func ouroborosRule(w *world) bool {
 	head := w.snake.body[0]
 	for _, s := range w.snake.body[1:] {
-		if head.x == s.x && head.y == s.y {
+		if s.equal(head) {
 			log.Println("OUROBOROS", w.snake)
 			return true
 		}
@@ -87,13 +87,13 @@ func ouroborosRule(w *world) bool {
 
 func growthRule(w *world) bool {
 	head := w.snake.body[0]
-	return head.x == w.food.x && head.y == w.food.y
+	return head.equal(coord(w.food))
 }
 
 func foodSpawnMechanic(w *world) food {
 	f := newRandomFood(w.axisCellNumber)
 	for _, s := range w.snake.body {
-		if f.x == s.x && f.y == s.y {
+		if s.equal(coord(f)) {
 			return foodSpawnMechanic(w)
 		}
 	}
