@@ -9,5 +9,5 @@ func (c coord) equal(c1 coord) bool {
 }
 
 func (c coord) isWithinRect(x1, y1, x2, y2 int32) bool {
-	return x1 < c.x && c.x < x2 && y1 < c.y && c.y < y2
+	return x1 <= c.x && c.x < x2 && y1 <= c.y && c.y < y2
 }
