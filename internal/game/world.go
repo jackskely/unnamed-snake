@@ -34,7 +34,7 @@ func (w *world) start(tps int32, directionC <-chan direction) <-chan world {
 
 		tick := time.NewTicker(time.Second / time.Duration(tps))
 		defer tick.Stop()
-
+		<-directionC
 		for range tick.C {
 			select {
 			case d := <-directionC:
