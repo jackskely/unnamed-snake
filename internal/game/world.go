@@ -26,27 +26,39 @@ func newWorld(width, height, axisCellNumber int32) world {
 	}
 }
 
-func (w *world) starting(tps int32, c <-chan direction) {
-	tick := time.NewTicker(time.Second / time.Duration(tps))
-	<-c
-	for range tick.C {
-		w.snake.move()
+func (w *world) start(tps int32, directionC <-chan direction) <-chan world {
+	c := make(chan world)
+	go func() {
+		defer close(c)
+		c <- *w
 
-		if failure(w) {
-			break
-		}
+		tick := time.NewTicker(time.Second / time.Duration(tps))
+		defer tick.Stop()
 
-		if growthRule(w) {
-			w.snake.eat()
-			w.score += 3 * int32(len(w.snake.body))
-			if success(w) {
+		for range tick.C {
+			select {
+			case d := <-directionC:
+				w.snake.setDirection(d)
+			default:
+			}
+			w.snake.move()
+
+			if failure(w) {
 				break
 			}
-			w.food = foodSpawnMechanic(w)
-		}
-	}
 
-	tick.Stop()
+			if growthRule(w) {
+				w.snake.eat()
+				w.score += 3 * int32(len(w.snake.body))
+				if success(w) {
+					break
+				}
+				w.food = foodSpawnMechanic(w)
+			}
+			c <- *w
+		}
+	}()
+	return c
 }
 
 func success(w *world) bool {

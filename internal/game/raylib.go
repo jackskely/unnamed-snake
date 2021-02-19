@@ -8,24 +8,44 @@ import (
 )
 
 type raylib struct {
-	targetFPS int32
+	title         string
+	width, height int32
+	targetFPS     int32
 }
 
-func (r *raylib) initView(width, height int32, title string, targetFPS int32) {
+func newRaylib(width, height int32, title string, targetFPS int32) raylib {
+	return raylib{
+		title:     title,
+		width:     width,
+		height:    height,
+		targetFPS: targetFPS,
+	}
+}
+
+func (r raylib) initView() {
 	rl.SetTraceLog(rl.LogNone)
-	rl.InitWindow(width, height, title)
-	rl.SetTargetFPS(targetFPS)
-	r.targetFPS = targetFPS
+	rl.InitWindow(r.width, r.height, r.title)
+	rl.SetTargetFPS(r.targetFPS)
 }
 
-func (raylib) drawing(w *world) {
+func (raylib) drawing(worldC <-chan world) {
+	w := <-worldC
 	for !rl.WindowShouldClose() {
 		rl.BeginDrawing()
 		rl.ClearBackground(rl.RayWhite)
-		drawFood(w.food, w.cellWidth, w.cellWidth, rl.Red)
+
+		drawFood(w.food, w.cellWidth, w.cellHeight, rl.Red)
 		drawSnake(w.snake, w.cellWidth, w.cellHeight, rl.DarkPurple, rl.Purple)
 		drawScore(w.score)
+
 		rl.EndDrawing()
+		select {
+		case snap := <-worldC:
+			if snap.snake.isAlive {
+				w = snap
+			}
+		default:
+		}
 	}
 }
 
@@ -59,24 +79,31 @@ func drawScore(score int32) {
 	rl.DrawText(headerText, 8, 8, rl.GetFontDefault().BaseSize, rl.Black)
 }
 
-func (r raylib) capturingInput(c chan<- direction) {
-	tick := time.NewTicker(time.Second / time.Duration(r.targetFPS))
-	for range tick.C {
-		if rl.IsKeyDown(rl.KeyUp) {
-			c <- up
-		} else if rl.IsKeyDown(rl.KeyLeft) {
-			c <- left
-		} else if rl.IsKeyDown(rl.KeyDown) {
-			c <- down
-		} else if rl.IsKeyDown(rl.KeyRight) {
-			c <- right
-		}
-	}
-	tick.Stop()
-}
+func (r raylib) handleInput() <-chan direction {
+	c := make(chan direction)
 
-func (r raylib) handlingInput(c <-chan direction, w *world) {
-	for input := range c {
-		w.snake.dir = input
-	}
+	go func() {
+		defer close(c)
+		tick := time.NewTicker(time.Second / time.Duration(r.targetFPS))
+		for range tick.C {
+			if rl.IsKeyPressed(rl.KeyUp) {
+				c <- up
+			}
+			if rl.IsKeyPressed(rl.KeyLeft) {
+				c <- left
+			}
+			if rl.IsKeyPressed(rl.KeyDown) {
+				c <- down
+			}
+			if rl.IsKeyPressed(rl.KeyRight) {
+				c <- right
+			}
+			if rl.IsKeyPressed(rl.KeyKp5) {
+				break
+			}
+		}
+		tick.Stop()
+	}()
+
+	return c
 }

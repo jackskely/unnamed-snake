@@ -7,33 +7,30 @@ import (
 )
 
 type controller struct {
-	view     view
-	input    inputHandler
-	controlC chan direction
+	view  view
+	input inputHandler
 }
 
-func NewController() controller {
-	r := raylib{}
+func NewController(title string, width, height int32, targetFPS int32) controller {
+	r := newRaylib(width, height, title, targetFPS)
 	return controller{
-		view:     &r,
-		input:    &r,
-		controlC: make(chan direction),
+		view:  &r,
+		input: &r,
 	}
 }
 
-func (c *controller) Start(width, height, axisCellNumber int32, title string, targetFPS, tps int32) {
+func (c *controller) Start(width, height, axisCellNumber int32, tps int32) {
 	seed := time.Now().Unix()
 	rand.Seed(seed)
 	log.Printf("SEED: %d", seed)
 
-	c.view.initView(width, height, title, targetFPS)
+	c.view.initView()
 
-	go c.input.capturingInput(c.controlC)
 	w := newWorld(width, height, axisCellNumber)
-	go c.input.handlingInput(c.controlC, &w)
-	go w.starting(tps, c.controlC)
-	log.Printf("%+v", w)
-	c.view.drawing(&w)
+
+	directionC := c.input.handleInput()
+	worldC := w.start(tps, directionC)
+	c.view.drawing(worldC)
 
 	c.view.closeView()
 }

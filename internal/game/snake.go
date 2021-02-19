@@ -3,13 +3,15 @@ package game
 import "math/rand"
 
 type snake struct {
-	dir  direction
-	body []coord
+	isAlive bool
+	dir     direction
+	body    []coord
 }
 
 func newSnake(x, y int32, dir direction, totalCell int) snake {
 	return snake{
-		dir: dir,
+		isAlive: true,
+		dir:     dir,
 		body: append(
 			make([]coord, 0, totalCell),
 			coord{x: x, y: y},
@@ -46,6 +48,10 @@ func (s *snake) move() {
 
 func (s *snake) eat() {
 	s.body = append(s.body, s.body[len(s.body)-1])
+}
+
+func (s *snake) setDirection(d direction) {
+	s.dir = d
 }
 
 func prependAndPop(s *snake, c coord) {
